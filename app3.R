@@ -56,6 +56,9 @@ sidebar <- dashboardSidebar(
         
     )
   )
+  
+  ####
+  )
 
 
 ##### body
@@ -101,7 +104,7 @@ body <- dashboardBody(
 
 
 
-#### Run App
+#### Run  App
 shinyApp(
   ui = dashboardPage(header, sidebar, body),
   server = function(input, output) { }
