@@ -6,8 +6,6 @@ library(dygraphs)
 library(plotly)
 
 
-
-########################
 #########################
 inflacion<-importbcrp('PN01205PM','2011','2021')
 inflacionsub<-importbcrp('PN01278PM','2011','2021')
@@ -22,8 +20,17 @@ merge(bd, fechas, join = "inner")
 bd<-as.data.frame(bd)
 grafico1<-bd 
 grafico1<-xts(grafico1,order.by = fechas)
-rubros_funnel<-dygraph(grafico1)
+rubros_funnel<-dygraph(grafico1) 
 #########################
+dolar<-importbcrp('PD09873MA','1980','2020')
+dolar<-dolar[,2]
+dolar<-as.numeric(dolar)
+fechas <- seq(as.Date("1980-01-01"),as.Date("2020-12-01"),"year")
+merge(dolar, fechas, join = "inner")
+dolar<-as.data.frame(dolar)
+grafico2<-dolar
+grafico2<-xts(grafico2,order.by = fechas)
+dygraph(grafico2)
 #########################
 ###### header
 header <- dashboardHeader(title = "BCRPRDATOS")
@@ -37,7 +44,7 @@ sidebar <- dashboardSidebar(
   
   sidebarMenu(                                 #Para crear un menÃº y se pueda abrir una nueva ventana por cada item.
     id="sidebarID",
-    menuItem("Informacion General", icon = icon("arrow-alt-circle-right")), #el tab Name=dep, permite relacionar el grÃÂ¡fico de dashboardBody
+    menuItem("Informacion General",tabName="map_mon", icon = icon("arrow-alt-circle-right")), #el tab Name=dep, permite relacionar el grÃÂ¡fico de dashboardBody
     menuItem("AnalisisUnivariado",id = "charts1", icon = icon("arrow-alt-circle-right"),#badgeLabel = "Importante",badgeColor ="red",
              menuSubItem("inflation", tabName = "subitem1"),
              menuSubItem("Embi",tabName = "subitem2"),
@@ -65,8 +72,51 @@ sidebar <- dashboardSidebar(
 ###### body
 body <- dashboardBody(
   tabItems(
+    tabItem(tabName = "map_mon",
+            div(#style="font-size: 100%; width:100%;overflow-x: scroll",
+                
+                #div(style="font-size: 100%; width:100%;overflow-x: scroll",
+                
+                #fluidRow(
+                 # column(width=8,  
+                  #       valueBox("9 Meses","Periodo: Marzo-Diciembre",icon=icon("hourglass-3"),color="yellow"),
+                   #      valueBoxOutput("num"),
+                         #valueBox("xx", "Monto Total", color = "green"),
+                    #     valueBoxOutput("monto"),
+                         #infoBoxOutput("info"),
+                         
+                  #)
+                  #,column(width = 4,
+                   #       imageOutput("manos", width="50%",height="150px")
+                  #)
+                #),
+               
+                
+                #fluidRow(column(width=8,
+                                infoBox("Transparencia","100%",icon=icon("thumbs-up")),
+                                infoBox("Dato abiertos", "100%"),
+                #)
+               
+                #),
+                
+                fluidRow(
+                  box(title="Coeficiente de Dolarizacion (%)",status="primary",
+                      solidHeader = T,dygraph(grafico2),
+                      width=12, height=500)
+                  ,
+                  #box(dolar, width=4)
+                  
+                  
+                  
+                ))
+            
+            #,fluidRow(box(DT::dataTableOutput("ley")))
+            # ,fluidRow(imageOutput("manos"))
+            
+    ),
+    
     tabItem(tabName = "api",
-            h1("BUSCADOR DE PROVEEDORES",style="font-family:Impact"),
+            h1("API PARA DESARROLLADORES",style="font-family:Impact"),
             p(style="font-family:Impact", 
               "La Base de Datos de Estadísticas del BCRP (BCRPData) proporciona interfaces API para consultar series estadísticas desde otras aplicaciones Web. Las API pueden generar resultados en diversos formatos de 
               salida como HTML, Gráficos en FLASH, XLS, XML, JSON, JSONP, TXT y CSV.Consulte instrucciones en la ",
@@ -76,8 +126,9 @@ body <- dashboardBody(
     ),
    
      tabItem(tabName = "rubros_funnel",fluidRow(
-      box(status="primary",solidHeader = T  ,width = 20,title="INFLACION VS INFLACION SUBYACENTE",dygraph(grafico1))
+      box(status="primary",solidHeader = T  ,width = 12,title="INFLACION VS INFLACION SUBYACENTE",dygraph(grafico1))
       ))),
+     
    
   )
 

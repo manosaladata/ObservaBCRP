@@ -41,6 +41,13 @@ plotly1Server<-function(id){
   moduleServer(id, function(input, output, session) {
     output$rubros_funnel<-renderPlotly(({rubros_funnel}))})}
 
-
-
+dolar<-importbcrp('PD09873MA','1980','2020')
+dolar<-dolar[,2]
+dolar<-as.numeric(dolar)
+fechas <- seq(as.Date("1980-01-01"),as.Date("2020-12-01"),"year")
+merge(dolar, fechas, join = "inner")
+dolar<-as.data.frame(dolar)
+grafico2<-dolar
+grafico2<-xts(grafico2,order.by = fechas)
+dygraph(grafico2)
 
