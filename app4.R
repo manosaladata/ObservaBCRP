@@ -5,7 +5,8 @@ library(xts)
 library(dygraphs)
 library(plotly)
 
-
+###### modulizando
+source("modules/ggplot_mod.R")
 
 ###### header
 header <- dashboardHeader(title = "BCRPRDATOS")
@@ -27,7 +28,7 @@ sidebar <- dashboardSidebar(
              menuSubItem("BonosSoberanos",tabName="subitem4")
     ),
     menuItem("AnalisisBivariado",id = "chartsID",icon = icon("arrow-alt-circle-right"),
-             menuSubItem("Por Montos",tabName = "rubros_funnel"),    #MÃ¡s icons:https://fontawesome.com/icons?d=gallery
+             menuSubItem("Inlacion-InflacionS",tabName = "rubros_funnel"),    #MÃ¡s icons:https://fontawesome.com/icons?d=gallery
              menuSubItem("Por NÃºmero de Contratos", tabName = "funnel_n")
     ),
     #menuSubItem("Entidades por Monto",tabName="entidt_mon")),
