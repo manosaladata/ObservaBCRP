@@ -31,6 +31,7 @@ dolar<-as.data.frame(dolar)
 grafico2<-dolar
 grafico2<-xts(grafico2,order.by = fechas)
 dygraph(grafico2)
+acdo<-dolar[41,]
 #########################
 ###### header
 header <- dashboardHeader(title = "BCRPRDATOS")
@@ -73,28 +74,21 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
   tabItems(
     tabItem(tabName = "map_mon",
-            div(#style="font-size: 100%; width:100%;overflow-x: scroll",
+            div(style="font-size: 100%; width:100%;overflow-x: scroll",
                 
-                #div(style="font-size: 100%; width:100%;overflow-x: scroll",
-                
-                #fluidRow(
-                 # column(width=8,  
-                  #       valueBox("9 Meses","Periodo: Marzo-Diciembre",icon=icon("hourglass-3"),color="yellow"),
-                   #      valueBoxOutput("num"),
-                         #valueBox("xx", "Monto Total", color = "green"),
-                    #     valueBoxOutput("monto"),
-                         #infoBoxOutput("info"),
-                         
-                  #)
-                  #,column(width = 4,
-                   #       imageOutput("manos", width="50%",height="150px")
-                  #)
-                #),
+                fluidRow(
+                  infoBox(
+                    "Coef_Dolarizacion_actual", round(acdo,2) , "(%)", icon = icon("line-chart"), color = "green"
+                  ),
+                  column(width = 4,
+                          imageOutput("manos", width="50%",height="150px")
+                  )
+                ),
                
                 
                 #fluidRow(column(width=8,
-                                infoBox("Transparencia","100%",icon=icon("thumbs-up")),
-                                infoBox("Dato abiertos", "100%"),
+                #                infoBox("Transparencia","100%",icon=icon("thumbs-up")),
+                #               infoBox("Dato abiertos", "100%"),
                 #)
                
                 #),
