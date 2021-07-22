@@ -11,6 +11,20 @@ library(ggmap)
 library(ggplot2)
 library(raster)
 library(maptools)
+library(rvest)
+library(Rcpp)
+library(httr)
+library(xml2)
+library(gganimate)
+library(gifski)
+library(jsonlite)
+library(tidyverse)
+library(tidytext)
+library(lubridate)
+library(scales)
+library(xts)
+library(BCRPR)
+library(dygraphs)
 #####################################
 google <- read_html("https://news.google.com/topstories?hl=es-419&gl=PE&ceid=PE%3Aes-419")
 article_all <- google %>% html_nodes("article")
@@ -20,11 +34,30 @@ Hora <- article_all %>%
 Medio <- article_all %>%
   html_nodes("a.wEwyrc.AVN2gc.uQIVzc.Sksgp") %>%
   html_text()
-Titular <- article_all %>%
+Ultimas_Noticias <- article_all %>%
   html_nodes("a.DY5T1d") %>%
   html_text()
-tb_news <- tibble(Titular, Medio, Hora)
-
+tb_news <- tibble(Ultimas_Noticias, Medio, Hora)
+#########################
+inflacion<-importbcrp('PN01205PM','2006','2021')
+inflacion<-inflacion[,2]
+inflacion<-as.numeric(inflacion)
+fechas <- seq(as.Date("2006-01-01"),as.Date("2020-12-01"),"month")
+#fechas <- format(fechas, format="%b %Y ")
+bd<-cbind(inflacion)
+merge(bd, fechas, join = "inner")
+bd<-as.data.frame(bd)
+dinamico<-bd %>%
+  ggplot(aes(x= fechas,
+             y= inflacion, 
+             color = inflacion)) +
+  geom_line(size=2) +
+  geom_point(size=1) +
+  labs(title = 'Inflacion-Peru en {frame_along}',
+       x = 'Fecha',
+       y = 'Inflacion') +
+  theme_minimal() +
+  transition_reveal(fechas)
 
 #####################################
 ###### header
@@ -41,8 +74,6 @@ sidebar <- dashboardSidebar(
     id="sidebarID",
     menuItem("Informacion General",tabName="map_mon", icon = icon("arrow-alt-circle-right")), #el tab Name=dep, permite relacionar el grÃÂ¡fico de dashboardBody
     menuItem("API para desarrolladores", tabName="api",icon = icon("arrow-alt-circle-right")),
-    selectInput(inputId="color1",label="Choose Color",choices = c("peru"="peru","chile"="chile","colombia"="colombia"),
-                selected = "Blue",multiple = F),
     menuItem("BCRP-search", tabName="busca",icon = icon("arrow-alt-circle-right")),
     menuItem("Agradecimientos", tabName="gracias",icon = icon("hands")),
     menuItem("Donaciones", tabName = "dona", icon=icon("hand-holding-heart")),
@@ -65,15 +96,19 @@ body <- dashboardBody(
                   column(width = 4,
                          imageOutput("manos", width="50%",height="150px")
                   )
-                ),
-                
-                
-                #fluidRow(column(width=8,
-                #                infoBox("Transparencia","100%",icon=icon("thumbs-up")),
-                #               infoBox("Dato abiertos", "100%"),
-                #)
-                
                 #),
+                
+                
+                #fluidRow(
+                #box(title="Coeficiente de Dolarizacion (%)",status="primary",
+                 #   solidHeader = F,,
+                  #  width=12, height=500)
+                #,
+                #box(dolar, width=4)
+                
+                
+                
+            ),
                 
                
                   
@@ -81,7 +116,7 @@ body <- dashboardBody(
                   shinyApp(
                     ui = fluidPage(
                       fluidRow(
-                        column(12,
+                        column(7,
                                tableOutput('table')
                         )
                       )
