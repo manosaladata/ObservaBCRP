@@ -7,21 +7,23 @@ library(plotly)
 library(dplyr) 
 library(rvest) 
 library(stringr)
+library(ggmap)
+library(ggplot2)
+library(raster)
+library(maptools)
 #####################################
 google <- read_html("https://news.google.com/topstories?hl=es-419&gl=PE&ceid=PE%3Aes-419")
 article_all <- google %>% html_nodes("article")
-times <- article_all %>%
+Hora <- article_all %>%
   html_node("time") %>%
   html_text()
-vehicles <- article_all %>%
+Medio <- article_all %>%
   html_nodes("a.wEwyrc.AVN2gc.uQIVzc.Sksgp") %>%
   html_text()
-headlines <- article_all %>%
+Titular <- article_all %>%
   html_nodes("a.DY5T1d") %>%
   html_text()
-tb_news <- tibble(headlines, vehicles, times)
-
-
+tb_news <- tibble(Titular, Medio, Hora)
 
 
 #####################################
@@ -38,22 +40,10 @@ sidebar <- dashboardSidebar(
   sidebarMenu(                                 #Para crear un menÃº y se pueda abrir una nueva ventana por cada item.
     id="sidebarID",
     menuItem("Informacion General",tabName="map_mon", icon = icon("arrow-alt-circle-right")), #el tab Name=dep, permite relacionar el grÃÂ¡fico de dashboardBody
-    menuItem("AnalisisUnivariado",id = "charts1", icon = icon("arrow-alt-circle-right"),#badgeLabel = "Importante",badgeColor ="red",
-             menuSubItem("inflation", tabName = "subitem1"),
-             menuSubItem("Embi",tabName = "subitem2"),
-             menuSubItem("TcNominal",tabName = "subitem3"),
-             menuSubItem("BonosSoberanos",tabName="subitem4")
-    ),
-    menuItem("AnalisisBivariado",id = "chartsID",icon = icon("arrow-alt-circle-right"),
-             menuSubItem("Inlacion-InflacionS",tabName = "rubros_funnel"),    #MÃ¡s icons:https://fontawesome.com/icons?d=gallery
-             menuSubItem("Tc-tc", tabName = "funnel_n")
-    ),
-    #menuSubItem("Entidades por Monto",tabName="entidt_mon")),
-    menuItem("Aplicación Econometrica", tabName = "eco",icon = icon("arrow-alt-circle-right")),
-    menuItem("Aplicación Macrodinámica",tabName = "macro",icon = icon("arrow-alt-circle-right")),
     menuItem("API para desarrolladores", tabName="api",icon = icon("arrow-alt-circle-right")),
+    selectInput(inputId="color1",label="Choose Color",choices = c("peru"="peru","chile"="chile","colombia"="colombia"),
+                selected = "Blue",multiple = F),
     menuItem("BCRP-search", tabName="busca",icon = icon("arrow-alt-circle-right")),
-    menuItem("Repositorio de Git-Hub",tabName = "Git-Hub", icon=icon("github-square")),
     menuItem("Agradecimientos", tabName="gracias",icon = icon("hands")),
     menuItem("Donaciones", tabName = "dona", icon=icon("hand-holding-heart")),
     textInput("text_input","Contáctenos", value="asrodeno18@gmail.com"),
@@ -84,6 +74,9 @@ body <- dashboardBody(
                 #)
                 
                 #),
+                
+               
+                  
                 if (interactive()) {
                   shinyApp(
                     ui = fluidPage(
