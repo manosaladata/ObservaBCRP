@@ -4,35 +4,27 @@ library(BCRPR)
 library(xts)
 library(dygraphs)
 library(plotly)
+library(dplyr) 
+library(rvest) 
+library(stringr)
+#####################################
+google <- read_html("https://news.google.com/topstories?hl=es-419&gl=PE&ceid=PE%3Aes-419")
+article_all <- google %>% html_nodes("article")
+times <- article_all %>%
+  html_node("time") %>%
+  html_text()
+vehicles <- article_all %>%
+  html_nodes("a.wEwyrc.AVN2gc.uQIVzc.Sksgp") %>%
+  html_text()
+headlines <- article_all %>%
+  html_nodes("a.DY5T1d") %>%
+  html_text()
+tb_news <- tibble(headlines, vehicles, times)
 
 
-#########################
-inflacion<-importbcrp('PN01205PM','2011','2021')
-inflacionsub<-importbcrp('PN01278PM','2011','2021')
-inflacion<-inflacion[,2]
-inflacionsub<-inflacionsub[,2]
-inflacion<-as.numeric(inflacion)
-inflacionsub<-as.numeric(inflacionsub)
-fechas <- seq(as.Date("2011-01-01"),as.Date("2020-12-01"),"month")
-#fechas <- format(fechas, format="%b %Y ")
-bd<-cbind(inflacion,inflacionsub)
-merge(bd, fechas, join = "inner")
-bd<-as.data.frame(bd)
-grafico1<-bd 
-grafico1<-xts(grafico1,order.by = fechas)
-rubros_funnel<-dygraph(grafico1) 
-#########################
-dolar<-importbcrp('PD09873MA','1980','2020')
-dolar<-dolar[,2]
-dolar<-as.numeric(dolar)
-fechas <- seq(as.Date("1980-01-01"),as.Date("2020-12-01"),"year")
-merge(dolar, fechas, join = "inner")
-dolar<-as.data.frame(dolar)
-grafico2<-dolar
-grafico2<-xts(grafico2,order.by = fechas)
-dygraph(grafico2)
-acdo<-dolar[41,]
-#########################
+
+
+#####################################
 ###### header
 header <- dashboardHeader(title = "BCRPRDATOS")
 ###### siderbar
@@ -54,7 +46,7 @@ sidebar <- dashboardSidebar(
     ),
     menuItem("AnalisisBivariado",id = "chartsID",icon = icon("arrow-alt-circle-right"),
              menuSubItem("Inlacion-InflacionS",tabName = "rubros_funnel"),    #MÃ¡s icons:https://fontawesome.com/icons?d=gallery
-             menuSubItem("Por NÃºmero de Contratos", tabName = "funnel_n")
+             menuSubItem("Tc-tc", tabName = "funnel_n")
     ),
     #menuSubItem("Entidades por Monto",tabName="entidt_mon")),
     menuItem("Aplicación Econometrica", tabName = "eco",icon = icon("arrow-alt-circle-right")),
@@ -78,31 +70,33 @@ body <- dashboardBody(
                 
                 fluidRow(
                   infoBox(
-                    "Coef_Dolarizacion_actual", round(acdo,2) , "(%)", icon = icon("line-chart"), color = "green"
+                    "Coef_Dolarizacion_actual", 3 , "(%)", icon = icon("line-chart"), color = "green"
                   ),
                   column(width = 4,
-                          imageOutput("manos", width="50%",height="150px")
+                         imageOutput("manos", width="50%",height="150px")
                   )
                 ),
-               
+                
                 
                 #fluidRow(column(width=8,
                 #                infoBox("Transparencia","100%",icon=icon("thumbs-up")),
                 #               infoBox("Dato abiertos", "100%"),
                 #)
-               
-                #),
                 
-                fluidRow(
-                  box(title="Coeficiente de Dolarizacion (%)",status="primary",
-                      solidHeader = T,dygraph(grafico2),
-                      width=12, height=500)
-                  ,
-                  #box(dolar, width=4)
-                  
-                  
-                  
-                ))
+                #),
+                if (interactive()) {
+                  shinyApp(
+                    ui = fluidPage(
+                      fluidRow(
+                        column(12,
+                               tableOutput('table')
+                        )
+                      )
+                    ),
+                    server = function(input, output) {
+                      output$table <- renderTable(tb_news)
+                    }
+                  )})
             
             #,fluidRow(box(DT::dataTableOutput("ley")))
             # ,fluidRow(imageOutput("manos"))
@@ -120,7 +114,7 @@ body <- dashboardBody(
     ),
    
      tabItem(tabName = "rubros_funnel",fluidRow(
-      box(status="primary",solidHeader = T  ,width = 12,title="INFLACION VS INFLACION SUBYACENTE",dygraph(grafico1))
+      box(status="primary",solidHeader = T  ,width = 12,title="INFLACION VS INFLACION SUBYACENTE")
       ))),
      
    
