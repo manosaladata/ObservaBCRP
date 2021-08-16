@@ -25,6 +25,32 @@ library(scales)
 library(xts)
 library(BCRPR)
 library(dygraphs)
+library(rsconnect)
+library(gapminder)
+library(ggplot2)
+library(shiny)
+library(gganimate)
+#####################################
+inflacion<-importbcrp('PN01205PM','2006','2021')
+inflacion<-inflacion[,2]
+inflacion<-as.numeric(inflacion)
+fechas <- seq(as.Date("2006-01-01"),as.Date("2020-12-01"),"month")
+#fechas <- format(fechas, format="%b %Y ")
+bd<-cbind(inflacion)
+merge(bd, fechas, join = "inner")
+bd<-as.data.frame(bd)
+dinamico<-bd %>%
+  ggplot(aes(x= fechas,
+             y= inflacion, 
+             color = inflacion)) +
+  geom_line(size=2) +
+  geom_point(size=1) +
+  labs(title = 'Inflacion-Peru en {frame_along}',
+       x = 'Fecha',
+       y = 'Inflacion') +
+  theme_minimal() +
+  transition_reveal(fechas)
+anim_save("outfile.gif", animate(dinamico))
 #####################################
 google <- read_html("https://news.google.com/topstories?hl=es-419&gl=PE&ceid=PE%3Aes-419")
 article_all <- google %>% html_nodes("article")
@@ -58,7 +84,18 @@ dinamico<-bd %>%
        y = 'Inflacion') +
   theme_minimal() +
   transition_reveal(fechas)
-
+######################################
+dolar<-importbcrp('PD09873MA','1980','2020')
+dolar<-dolar[,2]
+dolar<-as.numeric(dolar)
+fechas <- seq(as.Date("1980-01-01"),as.Date("2020-12-01"),"year")
+merge(dolar, fechas, join = "inner")
+dolar<-as.data.frame(dolar)
+grafico2<-dolar
+grafico2<-xts(grafico2,order.by = fechas)
+dygraph(grafico2)
+acdo<-dolar[41,]
+acdo<-round(acdo,2)
 #####################################
 ###### header
 header <- dashboardHeader(title = "BCRPRDATOS")
@@ -91,24 +128,18 @@ body <- dashboardBody(
                 
                 fluidRow(
                   infoBox(
-                    "Coef_Dolarizacion_actual", 3 , "(%)", icon = icon("line-chart"), color = "green"
+                    "Coef_Dolarizacion_actual", acdo , "(%)", icon = icon("line-chart"), color = "green"
                   ),
                   column(width = 4,
                          imageOutput("manos", width="50%",height="150px")
                   )
-                #),
+                ),
                 
+               mainPanel(
+                  img(src="E:/GitHub/ObservaDolarizacion/outfile.gif", align = "left",height='250px',width='500px')
+                ),
                 
-                #fluidRow(
-                #box(title="Coeficiente de Dolarizacion (%)",status="primary",
-                 #   solidHeader = F,,
-                  #  width=12, height=500)
-                #,
-                #box(dolar, width=4)
-                
-                
-                
-            ),
+            
                 
                
                   
@@ -159,3 +190,6 @@ shinyApp(
   ui = dashboardPage(header, sidebar, body),
   server = function(input, output) { }
 )
+
+
+
