@@ -136,8 +136,18 @@ body <- dashboardBody(
                 ),
                 
                mainPanel(
-                  img(src="E:/GitHub/ObservaDolarizacion/outfile.gif", align = "left",height='250px',width='500px')
-                ),
+                  # shiny::img(src="https://www.educaciontrespuntocero.com/wp-content/uploads/2019/06/homer.gif", align = "left",height="250px",width="500px")
+                  # shiny::img(src="homer.gif", align = "left",height="250px",width="500px")
+                  # shiny::img(src="https://github.com/manosaladata/ObservaDolarizacion/blob/main/outfile.gif", align = "left",height="250px",width="500px")
+                  # img(src = "./outfile.gif", style="display: block; margin-left: auto; margin-right: auto;" , width = "300px"),
+                  
+                  tags$img(class = "image-responsive",
+                             src = "homer.gif",
+                             style = "max-width: 150px;"
+                    )
+                  # ),
+                  
+                  ),
                 
             
                 
