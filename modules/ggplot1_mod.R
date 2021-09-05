@@ -55,14 +55,12 @@ dinamico <-estatico + transition_time(fechas)+ labs(title = "Fecha: {frame_time}
 dinamico
 
 
-
+###########################
 grafico1<-bd 
 grafico1<-xts(grafico1,order.by = fechas)
 grafico1 + transition_reveal(fechas)
 rubros_funnel<-dygraph(grafico1) 
-
-
-
+###########################
 
 
 
