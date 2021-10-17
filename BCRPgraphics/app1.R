@@ -59,6 +59,34 @@ library(plotly)
 library(xkcd)
 library(apexcharter)
 library(shinyWidgets)
+library(tidyverse)                                        
+library(zoo)                                              
+devtools::install_github("yutannihilation/gghighlight")  
+library(gghighlight)                                      
+#install.packages('ggthemes')                             
+library(ggthemes)                                         
+remotes::install_github("Financial-Times/ftplottools")    
+library(ftplottools)                                      
+       
+mytheme <- 
+  theme(panel.grid.major.x =element_line(colour = "wheat4"),
+        panel.grid.major.y =element_line(colour = "wheat4"),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        axis.text = element_text(colour = "black", size = 24, face = "bold"),
+        axis.title.x = element_text(colour = "black", size = 28, face = "bold", vjust = 0.8),
+        axis.title.y = element_blank(),
+        strip.text = element_text(size=24, colour = "blue4", face = "bold"),
+        plot.title = element_text(color = "black", size = 40, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 30),
+        plot.tag = element_text(color = "black", face = "italic", size = 24, lineheight = 0.9),
+        plot.tag.position = c(0.15,0.02),
+        panel.background = element_rect(fill = "seashell2"),
+        plot.background = element_rect(fill = "seashell2"), 
+        panel.border = element_blank(),
+        panel.spacing.y = unit(3, "lines")
+  ) 
+
 
 inflacion12<-importbcrp('PN01273PM','2006','2022')
 inflacionen<-importbcrp('PN01277PM','2006','2022')
@@ -81,7 +109,7 @@ inflacionen<-round(inflacionen,2)
 expinf<-round(expinf,2)
 tasref<-round(tasref,2)
 
-Date <- seq(as.Date("2006-01-01"),as.Date("2021-09-01"),"month")
+Date <- seq(as.Date("2006-01-01"),as.Date("2021-10-01"),"month")
 bd<-cbind(inflacion12, inflacionen,expinf,tasref,Date)
 merge(bd, Date, join = "inner")
 bd<-as.data.frame(bd)
@@ -153,9 +181,11 @@ server <- function(input, output) {
   #  rubros_funnel<-dygraph(grafico1)   
   output$plot <- renderPlotly({
     ggplotly({
-      p <- ggplot(filtered_data(), aes_string(x="Date", y=input$dv, colour="input$dv "))  + 
-        geom_line(size = 1.5) +
-        geom_point(size=1)  +
+      p <- ggplot(filtered_data(), aes_string(Date, y=input$dv, colour="input$dv "))  + 
+        geom_path(color='blue', lineend = "round", size=1.5) +
+        facet_wrap(~ input$dv, scales = "free_x") +
+        gghighlight() +
+        mytheme +
         ylab("% ")
       
       p
